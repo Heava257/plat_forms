@@ -111,4 +111,18 @@ router.get('/status', authenticateToken, async (req, res) => {
     }
 });
 
+// Repair Endpoint: Fix all 1970/expired dates for testing
+router.get('/repair-dates', async (req, res) => {
+    try {
+        await db.query(`
+            UPDATE subscriptions 
+            SET end_date = '2026-12-31', status = 'active'
+            WHERE end_date IS NULL OR end_date < '2000-01-01' OR status != 'active'
+        `);
+        res.json({ message: 'All subscriptions repaired! Dates set to 2026-12-31.' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
