@@ -77,11 +77,10 @@ const authenticateToken = require('../middleware/authMiddleware');
 router.get('/status', authenticateToken, async (req, res) => {
     // req.user is populated by middleware from the handshake token
     // Handshake token has: user_id, company_id, system_code
+    const user_id = req.user.id;
     const { company_id, system_code } = req.user;
 
-    if (!company_id || !system_code) {
-        return res.status(400).json({ error: 'Invalid handshake context' });
-    }
+    console.log(`[SUBSCRIPTION_CHECK] User:${user_id}, System:${system_code}`);
 
     try {
         const [rows] = await db.query(`
@@ -89,11 +88,15 @@ router.get('/status', authenticateToken, async (req, res) => {
             FROM subscriptions s
             JOIN systems sys ON s.system_id = sys.id
             JOIN plans p ON s.plan_id = p.id
-            WHERE s.user_id = ? AND sys.code = ? AND s.status = 'active'
+            WHERE s.user_id = ? 
+            AND (LOWER(sys.code) = LOWER(?) OR sys.name LIKE ?)
+            AND s.status = 'active'
+            ORDER BY s.end_date DESC
             LIMIT 1
-        `, [req.user.id, system_code]);
+        `, [user_id, system_code, `%${system_code}%`]);
 
         if (rows.length === 0) {
+            console.warn(`[SUBSCRIPTION_DENIED] No active sub for User:${user_id}, System:${system_code}`);
             return res.json({
                 active: false,
                 message: 'No active subscription found for this system'
@@ -107,6 +110,7 @@ router.get('/status', authenticateToken, async (req, res) => {
             company_id: company_id
         });
     } catch (err) {
+        console.error("[SUBSCRIPTION_ERROR]", err);
         res.status(500).json({ error: err.message });
     }
 });
