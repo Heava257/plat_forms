@@ -3,6 +3,7 @@ import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import UserManagement from '../components/UserManagement';
 import SystemManagement from '../components/SystemManagement';
+import SubscriptionManagement from '../components/SubscriptionManagement/SubscriptionManagement';
 
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
@@ -32,6 +33,8 @@ const AdminDashboard = () => {
                 return <UserManagement />;
             case 'systems':
                 return <SystemManagement />;
+            case 'subscriptions':
+                return <SubscriptionManagement />;
             case 'dashboard':
             default:
                 return (
@@ -143,7 +146,9 @@ const AdminDashboard = () => {
                         <label>Business</label>
                         <ul>
                             <li><span className="nav-icon">💳</span> Payments</li>
-                            <li><span className="nav-icon">📑</span> Subscriptions</li>
+                            <li className={activeTab === 'subscriptions' ? 'active' : ''} onClick={() => setActiveTab('subscriptions')}>
+                                <span className="nav-icon">📑</span> Subscriptions
+                            </li>
                             <li><span className="nav-icon">⚙️</span> Settings</li>
                         </ul>
                     </div>

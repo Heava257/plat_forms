@@ -26,11 +26,26 @@ const SubscriptionManagement = () => {
         }
     };
 
+    const repairSubscriptions = async () => {
+        if (window.confirm("Do you want to fix all 1970/expired dates?")) {
+            try {
+                await api.get('/subscriptions/repair-dates');
+                alert("Repaired! Reloading...");
+                fetchSubscriptions();
+            } catch (err) {
+                alert("Repair failed: " + err.message);
+            }
+        }
+    };
+
     return (
         <section className="management-section">
             <div className="section-header">
                 <h3>Subscription Repository</h3>
-                <button className="btn-primary-small">+ Monitor Contract</button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="btn-primary-small" onClick={repairSubscriptions}>🔧 Auto Repair</button>
+                    <button className="btn-primary-small">+ Monitor Contract</button>
+                </div>
             </div>
 
             <div className="table-container">
