@@ -77,7 +77,7 @@ const authenticateToken = require('../middleware/authMiddleware');
 router.get('/status', authenticateToken, async (req, res) => {
     // req.user is populated by middleware from the handshake token
     // Handshake token has: user_id, company_id, system_code
-    const user_id = req.user.id;
+    const user_id = req.user.id || req.user.user_id;
     const { company_id, system_code } = req.user;
 
     console.log(`[SUBSCRIPTION_CHECK] User:${user_id}, System:${system_code}`);
